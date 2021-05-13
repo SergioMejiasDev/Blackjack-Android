@@ -1,7 +1,10 @@
-﻿/// <summary>
+﻿using System;
+
+/// <summary>
 /// Class with the possible options variables that can be saved.
 /// </summary>
-public class OptionsData
+[Serializable]
+public class SaveData
 {
     public string activeLanguage;
     public bool muteVolume;

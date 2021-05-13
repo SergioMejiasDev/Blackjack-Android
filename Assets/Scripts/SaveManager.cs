@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 /// <summary>
-/// Class that manages saving and loading of scores in a JSON file.
+/// Class that manages saving and loading of scores in a binary file.
 /// </summary>
 public class SaveManager : MonoBehaviour
 {
@@ -30,20 +31,17 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public void LoadOptions()
     {
-        OptionsData data = new OptionsData();
+        SaveData data = new SaveData();
 
-        string json;
-
-        string path = Application.persistentDataPath + "/Save.json";
+        string path = Application.persistentDataPath + "/Save.sav";
 
         if (File.Exists(path))
         {
-            using (StreamReader reader = new StreamReader(path))
-            {
-                json = reader.ReadToEnd();
-            }
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
 
-            JsonUtility.FromJsonOverwrite(json, data);
+            data = formatter.Deserialize(stream) as SaveData;
+            stream.Close();
 
             activeLanguage = data.activeLanguage;
             muteVolume = data.muteVolume;
@@ -59,7 +57,7 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public void SaveOptions()
     {
-        OptionsData data = new OptionsData
+        SaveData data = new SaveData
         {
             activeLanguage = activeLanguage,
             muteVolume = muteVolume,
@@ -69,15 +67,14 @@ public class SaveManager : MonoBehaviour
             gamesDraw = gamesDraw
         };
 
-        string json = JsonUtility.ToJson(data);
+        BinaryFormatter formatter = new BinaryFormatter();
 
-        string path = Application.persistentDataPath + "/Save.json";
+        string path = Application.persistentDataPath + "/Save.sav";
 
         FileStream fileStream = new FileStream(path, FileMode.Create);
 
-        using (StreamWriter writer = new StreamWriter(fileStream))
-        {
-            writer.Write(json);
-        }
+        formatter.Serialize(fileStream, data);
+
+        fileStream.Close();
     }
 }
